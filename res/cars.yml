@@ -1,0 +1,34 @@
+cars:
+  1:
+    brand: "FSO"
+    model: "Polonez Caro"
+    price: 10
+    quantity: 1
+    specs:
+      year: 1993
+      hp: 65
+      vmax: 150
+      seats: 5
+      doors: 5
+  2:
+    brand: "ZAZ"
+    model: "Tavria"
+    price: 5
+    quantity: 3
+    specs:
+      year: 1989
+      hp: 50
+      vmax: 150
+      seats: 5
+      doors: 5
+  3:
+    brand: "Wartburg"
+    model: "353"
+    price: 15
+    quantity: 1
+    specs:
+      year: 1979
+      hp: 70
+      vmax: 120
+      seats: 5
+      doors: 5
