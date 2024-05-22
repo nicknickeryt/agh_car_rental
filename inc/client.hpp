@@ -5,6 +5,8 @@ using std::string;
 
 class Client
 {
+    string fLogin;
+    string fPass;
     string fName;
     string fSurname;
     int fCredit;
@@ -18,14 +20,22 @@ public:
     void setCredit(int credit);
     void resetCredit();
 
+    string getLogin();
+    string getPass(); /// TODO REMOVE IT!
     string getName();
     string getSurname();
     int getCredit();
 
     void printInfo();
+    bool checkPass(string pass);
+    void deleteProfile(string file);
 
-    Client(string name, string surname);
-    Client(string name, string surname, int credit);
-    Client(YAML::Node client);
-    
+    bool isNull();
+
+    Client();
+    Client(string login, string pass, string name, string surname);
+    Client(string login, string pass, string name, string surname, int credit);
+    Client(string clientFile);
+
+    bool writeToYaml(string file);
 };

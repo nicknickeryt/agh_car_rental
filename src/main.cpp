@@ -14,5 +14,5 @@ using std::cin, std::cout, std::endl, std::string, std::map, std::vector;
 
 int main()
 {
-    showMenu();
+    showAuth();
 }

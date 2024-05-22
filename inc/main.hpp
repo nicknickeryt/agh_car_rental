@@ -1,1 +1,0 @@
-std::string clientFile = "../res/client.yml";

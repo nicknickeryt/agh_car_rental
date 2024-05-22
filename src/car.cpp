@@ -6,18 +6,22 @@
 
 #include "car.hpp"
 
+
 using std::string, std::map, std::vector, std::cin, std::cout;
 
 
-    string Car::getBrand() { return brand; }
-    string Car::getModel() { return model; }
-    int Car::getPrice() { return price; }
-    int Car::getQuantity() { return quantity; }
+    Car::Car (string brand, string model, int price, int quantity, map<Spec, int> specs) : 
+        brand(brand), model(model), price(price), quantity(quantity), specs(specs) {}
+        
+    string Car::getBrand() const { return brand; }
+    string Car::getModel() const { return model; }
+    int Car::getPrice()    const { return price; }
+    int Car::getQuantity() const { return quantity; }
     map<Spec, int> Car::getSpecs() { return specs; }
     int Car::getSpec(Spec s) { return specs[s]; }
 
 
-std::vector<Car> loadCarsFromYaml(std::string file)
+vector<Car> parseCarsFromYaml(string& file)
 {   
     vector<Car> ret;
     YAML::Node cars = YAML::LoadFile(file);
@@ -38,7 +42,7 @@ std::vector<Car> loadCarsFromYaml(std::string file)
             {Spec::HP, car["specs"]["hp"].as<int>()},
             {Spec::VMAX, car["specs"]["vmax"].as<int>()},
             {Spec::SEATS, car["specs"]["seats"].as<int>()},
-            {Spec::DOOR, car["specs"]["door"].as<int>()},
+            {Spec::DOOR, car["specs"]["doors"].as<int>()},
         };
 
 

@@ -1,6 +1,8 @@
 #include <vector>
 #include <map>
+#include <string>
 
+using std::string, std::map, std::vector;
 
 enum Spec
 {
@@ -11,25 +13,23 @@ enum Spec
     DOOR
 };
 
-
-class Car
-{
+class Car {
 private:
-    std::string brand;
-    std::string model;
+    string brand;
+    string model;
     int price;
     int quantity;
 
-    std::map<Spec, int> specs;
+    map<Spec, int> specs;
 
 public:
-    Car (string brand, string model, int price, int quantity, map<Spec, int> specs) : brand(brand), model(model), price(price), quantity(quantity), specs(specs) {}
-    std::string getBrand();
-    std::string getModel();
-    int getPrice();
-    int getQuantity();
-    std::map<Spec, int> getSpecs();
+    Car(string brand, string model, int price, int quantity, map<Spec, int> specs);
+    string getBrand() const;
+    string getModel() const;
+    int getPrice() const;
+    int getQuantity() const;
+    map<Spec, int> getSpecs();
     int getSpec(Spec s);
 };
 
-std::vector<Car> loadCarsFromYaml(std::string file);
+vector<Car> parseCarsFromYaml(string& file);
