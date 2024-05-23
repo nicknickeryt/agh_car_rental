@@ -4,120 +4,64 @@
 #include <vector>
 #include <filesystem>
 
+#include "auth.hpp"
 #include "car.hpp"
 #include "menu.hpp"
-#include "client.hpp"
 #include "utils.hpp"
 
 using std::cin, std::cout, std::endl, std::string, std::map, std::vector;
 
-string carsFile = "../res/cars.yml";
+Client Menu::client = Client();
+vector<Car> cars = Car::getAllCars();
 
-YAML::Node cars = YAML::LoadFile(carsFile);
-
-Client client{};
-
-string clientFile{};
-
-void showAuth()
+void Menu::showLoginScreen()
 {
     cout << "\n| Car sharing |\n\n";
 
-    int sel = promptSel({{0, "Zaloguj się"},
-                         {1, "Utwórz nowy profi"},
-                         {9, "Wyjdź"}});
-
+    int sel = Utils::promptSel({{0, "Zaloguj się"},
+                                {1, "Utwórz nowy profil"},
+                                {9, "Wyjdź"}});
     switch (sel)
     {
     case 0:
-        showLogin();
+        Auth::showLogin(client) == 1 ? showLoginScreen() : showHomeScreen();
         break;
     case 1:
-        showRegister();
+        Auth::showRegister();
+        showLoginScreen();
         break;
     case 9:
         return;
         break;
     default:
-        showAuth();
+        showLoginScreen();
         break;
     }
 }
 
-void showLogin()
+void Menu::showHomeScreen()
 {
-    string login = promptInput("Podaj login");
-    clientFile = "../res/clients/" + login + ".yml";
-
-    if (!std::filesystem::exists(clientFile))
-    {
-        printErr("Nieprawidłowy login");
-        showAuth();
-    }
-    else
-    {
-
-        Client client(clientFile);
-
-        if (!client.checkPass(promptInput("Podaj hasło")))
-        {
-            printErr("Nieprawidłowe hasło");
-            cout << client.getPass();
-            showAuth();
-        }
-        else
-            showHome();
-    }
-}
-
-void showRegister()
-{
-    string login, pass, name, surname{};
-
-    cout << "Wprowadź dane nowego profilu:\n\n";
-
-    cout << "Podaj login:\n» ";
-    cin >> login;
-
-    if (std::filesystem::exists("../res/clients/" + login + ".yml"))
-    {
-        printErr("Konto z takim loginem już istnieje");
-        showAuth();
-    }
-
-    cout << "Podaj hasło:\n» ";
-    cin >> pass;
-
-    cout << " Podaj imię:\n» ";
-    cin >> name;
-    cout << " Podaj nazwisko:\n» ";
-    cin >> surname;
-
-    client = Client(login, pass, name, surname);
-
-    clientFile = "../res/clients/" + login + ".yml";
-
-    client.writeToYaml(clientFile);
-    cout << "Konto " << name << " " << surname << " zostało utworzone. Możesz się teraz zalogować.\n\n";
-}
-
-void showHome()
-{
-    if (client.isNull())
-        client = Client(clientFile);
-
     cout << "Witaj " << client.getName() << " " << client.getSurname() << "!\n";
 
-    int sel = promptSel({{1, "Wyświetl swój profil"},
-                         {2, "Przeglądaj ofertę"},
-                         {3, "Zarządzaj wypożyczonymi pojazdami"},
-                         {8, "Wyloguj"},
-                         {9, "Wyjdź"}});
+    map<int, string> promptMap{{1, "Wyświetl swój profil"},
+                               {2, "Przeglądaj ofertę"},
+                               {8, "Wyloguj"},
+                               {9, "Wyjdź"}};
+    if (client.hasRented())
+        promptMap[3] = "Zwróć: " + client.getRentCar().getBrand() + " " + client.getRentCar().getModel();
+
+    int sel = Utils::promptSel(promptMap);
 
     switch (sel)
     {
     case 1:
         showProfile();
+        break;
+    case 2:
+        showCars();
+        break;
+    case 3:
+        tryUnrent();
         break;
     case 8:
         logout();
@@ -126,29 +70,29 @@ void showHome()
         return;
         break;
     default:
-        showHome();
+        showHomeScreen();
         break;
     }
 }
 
-void logout()
+void Menu::logout()
 {
-    clientFile = {};
-    showAuth();
+    client = Client();
+    showLoginScreen();
 }
 
-void deleteProfile()
+void Menu::deleteProfile()
 {
-    client.deleteProfile(clientFile);
-    showAuth();
+    client.deleteProfile();
+    showLoginScreen();
 }
 
-void showProfile()
+void Menu::showProfile()
 {
     client.printInfo();
 
-    int sel = promptSel({{0, "Usuń profil"},
-                         {1, " Powrót do menu"}});
+    int sel = Utils::promptSel({{0, "Usuń profil"},
+                                {9, "Powrót do menu"}});
 
     switch (sel)
     {
@@ -156,8 +100,8 @@ void showProfile()
         deleteProfile();
         logout();
         break;
-    case 1:
-        showHome();
+    case 9:
+        showHomeScreen();
         break;
     default:
         showProfile();
@@ -165,23 +109,84 @@ void showProfile()
     }
 }
 
-void showMenu()
+void Menu::showCars()
 {
+    cout << "\nDostępne samochody\n\n";
 
-    vector<Car> cars = parseCarsFromYaml(carsFile);
-
-    int i = 0;
+    int i = 1;
     for (Car car : cars)
     {
 
-        cout << " [" << i << "] " << "Samochód: " << car.getBrand() << " " << car.getModel() << endl
-             << "     Cena: " << car.getPrice() << endl
-             << "     Dostępna ilość: " << car.getQuantity() << endl;
+        cout << "  [" << i << "] " << car.getBrand() << " " << car.getModel() << endl
+             << "      Cena: " << car.getPrice() << "zł/h" << endl
+             << "      Dostępna ilość: " << car.getQuantity() << endl;
 
         i++;
     }
 
-    cout << "» Podaj numer samochodu, który chcesz wypożyczyć:" << endl;
-    int n{};
-    cin >> n;
+    cout << endl;
+
+    int sel = Utils::promptSel({{0, "Wypożycz samochód"},
+                                {9, "Powrót do menu"}});
+    switch (sel)
+    {
+    case 0:
+    {
+        cout << "» Podaj numer samochodu, który chcesz wypożyczyć:" << endl;
+        int n{};
+        cin >> n;
+
+        tryRent(n);
+
+        break;
+    }
+    case 9:
+        showHomeScreen();
+        break;
+    default:
+        showCars();
+        break;
+    }
+}
+
+void Menu::tryUnrent()
+{
+    cout << "Zwrócono samochód.\n";
+    showHomeScreen();
+}
+void Menu::tryRent(int n)
+{
+    int o = rentCar(n);
+
+    switch (o)
+    {
+    case 0:
+        cout << "Wypożyczono samochód.\n";
+        break;
+    case 1:
+        Utils::printErr("Ten samochód nie jest aktualnie dostępny.");
+        break;
+    case 2:
+        Utils::printErr("Nie masz pieniędzy, by wypożyczyć samochód.");
+        break;
+    case 3:
+        Utils::printErr("Już masz wypożyczony samochód.");
+        break;
+    }
+    showHomeScreen();
+}
+
+int Menu::rentCar(int n)
+{
+    Car car = cars[n];
+    if (car.getQuantity() <= 0)
+        return 1;
+    if (Menu::client.getCredit() < 10)
+        return 2;
+    if (Menu::client.hasRented())
+        return 3;
+
+    Menu::client.rent(car);
+    Menu::client.updateFile();
+    return 0;
 }

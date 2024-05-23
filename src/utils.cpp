@@ -6,7 +6,7 @@
 
 using std::cout, std::cin, std::endl, std::string, std::map;
 
-int promptSel()
+int Utils::promptSel()
 {
     int ret{};
     cout << "» ";
@@ -14,7 +14,7 @@ int promptSel()
     return ret;
 }
 
-int promptSel(map<int, string> promptMap)
+int Utils::promptSel(map<int, string> promptMap)
 {
     for (auto x : promptMap)
     {
@@ -27,7 +27,7 @@ int promptSel(map<int, string> promptMap)
     return ret;
 }
 
-string promptInput()
+string Utils::promptInput()
 {
     string ret{};
     cout << "» ";
@@ -35,7 +35,7 @@ string promptInput()
     return ret;
 }
 
-string promptInput(string promptText)
+string Utils::promptInput(string promptText)
 {
     cout << promptText << endl;
 
@@ -45,7 +45,7 @@ string promptInput(string promptText)
     return ret;
 }
 
-void printErr(string errText)
+void Utils::printErr(string errText)
 {
     cout << "[ ! ] " << errText << endl;
 }

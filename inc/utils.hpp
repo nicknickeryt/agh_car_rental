@@ -2,9 +2,15 @@
 #include <map>
 
 using std::string, std::map;
-int promptSel();
-int promptSel(map<int, string> promptMap);
-string promptInput();
-string promptInput(string promptText);
 
-void printErr(string errText);
+class Utils
+{
+public:
+    static int promptSel();
+    static int promptSel(map<int, string> promptMap);
+
+    static string promptInput();
+    static string promptInput(string promptText);
+
+    static void printErr(string errText);
+};

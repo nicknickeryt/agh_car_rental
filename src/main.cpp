@@ -6,7 +6,6 @@
 
 #include "main.hpp"
 #include "menu.hpp"
-#include "client.hpp"
 
 #include "yaml-cpp/yaml.h"
 
@@ -14,5 +13,5 @@ using std::cin, std::cout, std::endl, std::string, std::map, std::vector;
 
 int main()
 {
-    showAuth();
+    Menu::showLoginScreen();
 }
