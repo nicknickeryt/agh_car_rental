@@ -4,8 +4,8 @@
 #include <map>
 #include <vector>
 
-#include "main.hpp"
-#include "menu.hpp"
+#include "main.h"
+#include "menu.h"
 
 #include "yaml-cpp/yaml.h"
 
@@ -13,5 +13,11 @@ using std::cin, std::cout, std::endl, std::string, std::map, std::vector;
 
 int main()
 {
-    Menu::showLoginScreen();
+    /* TODO
+     * clean up this mess
+     * hash passwords and remove Client#getPassword
+     * add car location with dummy gps function
+     * add rules in menu and while registering
+     */
+    Menu::tryInit();
 }

@@ -1,7 +1,7 @@
 #include <string>
 
-#include "client.hpp"
-#include "auth.hpp"
+#include "client.h"
+#include "auth.h"
 
 using std::string;
 
@@ -15,7 +15,9 @@ public:
     static void deleteProfile();
     static void showProfile();
     static void showCars();
-    static void tryRent(int n);
+    static void showCarDetails(const int n);
+    static void tryRent(const int n);
     static void tryUnrent();
-    static int rentCar(int n);
+    static int rentCar(Car &car);
+    static void tryInit();
 };

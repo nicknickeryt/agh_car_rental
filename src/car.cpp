@@ -5,45 +5,33 @@
 
 #include "yaml-cpp/yaml.h"
 
-#include "car.hpp"
+#include "car.h"
+#include "utils.h"
+#include "conf.h"
 
-using std::string, std::map, std::vector, std::cin, std::cout;
+using std::string, std::map, std::vector, std::cin, std::cout, std::exception;
 
 Car::Car() {}
 
-Car::Car(string brand, string model, int price, int quantity, map<Spec, int> specs, int id) : brand(brand), model(model), price(price), quantity(quantity), specs(specs), id(id)
-{
-    // YAML::Node cars = YAML::LoadFile("../res/cars.yml");
-    // YAML::Node root = cars["cars"];
-    // id = root.size() + 1;
-}
+Car::Car(string brand, string model, float price, int quantity, map<Spec, int> specs, int id) : brand(brand), model(model), price(price), quantity(quantity), specs(specs), id(id) {}
 
 string Car::getBrand() const { return brand; }
 string Car::getModel() const { return model; }
-int Car::getPrice() const { return price; }
+float Car::getPrice() const { return price; }
 int Car::getQuantity() const { return quantity; }
 map<Spec, int> Car::getSpecs() { return specs; }
 int Car::getSpec(Spec s) { return specs[s]; }
 int Car::getId() const { return id; }
 
-// Car::updateFile()
-// {
-//     YAML::Node cars = YAML::LoadFile("../res/cars.yml");
-//     YAML::Node root = cars["cars"];
-//     int id = 0;
-//     if (root.size() != 0)
-//         id = root[root.end()].first.as<int>()
-// }
-
-Car Car::getCarById(int id)
+Car Car::getCarById(const int id)
 {
-    YAML::Node cars = YAML::LoadFile("../res/cars.yml");
+    YAML::Node cars = YAML::LoadFile(carsConf);
     YAML::Node root = cars["cars"];
     YAML::Node car = root[id];
 
     string brand = car["brand"].as<string>();
     string model = car["model"].as<string>();
-    int price = car["price"].as<int>();
+    float price = car["price"].as<float>();
     int quantity = car["quantity"].as<int>();
 
     map<Spec, int> specs{
@@ -61,34 +49,43 @@ bool Car::isNull()
     return brand == "" || model == "" || price == 0;
 }
 
-vector<Car> Car::getAllCars()
+bool Car::getAllCars(vector<Car> &carsV)
 {
-    vector<Car> ret;
-    YAML::Node cars = YAML::LoadFile("../res/cars.yml");
-
-    YAML::Node root = cars["cars"];
-
-    for (auto x : root)
+    try
     {
-        int i = x.first.as<int>();
-        YAML::Node car = root[i];
+        vector<Car> ret;
+        YAML::Node cars = YAML::LoadFile(carsConf);
 
-        string brand = car["brand"].as<string>();
-        string model = car["model"].as<string>();
-        int price = car["price"].as<int>();
-        int quantity = car["quantity"].as<int>();
+        YAML::Node root = cars["cars"];
 
-        map<Spec, int> specs{
-            {Spec::YEAR, car["specs"]["year"].as<int>()},
-            {Spec::HP, car["specs"]["hp"].as<int>()},
-            {Spec::VMAX, car["specs"]["vmax"].as<int>()},
-            {Spec::SEATS, car["specs"]["seats"].as<int>()},
-            {Spec::DOOR, car["specs"]["doors"].as<int>()},
-        };
+        for (auto x : root)
+        {
+            int i = x.first.as<int>();
+            YAML::Node car = root[i];
 
-        ret.push_back(Car(brand, model, price, quantity, specs, i - 1));
+            string brand = car["brand"].as<string>();
+            string model = car["model"].as<string>();
+            float price = car["price"].as<float>();
+            int quantity = car["quantity"].as<int>();
+
+            map<Spec, int> specs{
+                {Spec::YEAR, car["specs"]["year"].as<int>()},
+                {Spec::HP, car["specs"]["hp"].as<int>()},
+                {Spec::VMAX, car["specs"]["vmax"].as<int>()},
+                {Spec::SEATS, car["specs"]["seats"].as<int>()},
+                {Spec::DOOR, car["specs"]["doors"].as<int>()},
+            };
+
+            ret.push_back(Car(brand, model, price, quantity, specs, i));
+        }
+        carsV = ret;
+        return 0;
     }
-    return ret;
+    catch (exception e)
+    {
+        Utils::processException(CARS_PARSE);
+    }
+    return 1;
 }
 
 void Car::rent()

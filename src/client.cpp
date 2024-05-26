@@ -2,24 +2,27 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <ctime>
 
-#include "client.hpp"
+#include "client.h"
+#include "utils.h"
+#include "conf.h"
 
 #include "yaml-cpp/yaml.h"
 
 using std::string, std::cout, std::endl;
 
-void Client::setName(string name)
+void Client::setName(const string name)
 {
     fName = name;
 }
 
-void Client::setSurname(string surname)
+void Client::setSurname(const string surname)
 {
     fSurname = surname;
 }
 
-void Client::setCredit(int credit)
+void Client::setCredit(const int credit)
 {
     fCredit = credit;
 }
@@ -30,12 +33,12 @@ void Client::resetCredit()
 }
 
 string Client::getLogin() { return fLogin; }
-string Client::getPass() { return fPass; }
 string Client::getName() { return fName; }
 string Client::getSurname() { return fSurname; }
 string Client::getFile() { return fClientFile; }
 int Client::getCredit() { return fCredit; }
 Car Client::getRentCar() { return Car::getCarById(fRentCarId); }
+int Client::getRentTime() { return fRentTime; }
 
 void Client::printInfo()
 {
@@ -57,30 +60,30 @@ Client::Client()
     fClientFile = "";
 }
 
-Client::Client(string login, string pass, string name, string surname)
+Client::Client(const string login, const string pass, const string name, const string surname)
 {
     fLogin = login;
     fPass = pass;
     fInitialCredit = fCredit = defaultCredit;
     fName = name;
     fSurname = surname;
-    fClientFile = "../res/clients/" + login + ".yml";
+    fClientFile = clientsPath + login + ".yml";
 }
 
-Client::Client(string login, string pass, string name, string surname, int credit)
+Client::Client(const string login, const string pass, const string name, const string surname, const int credit)
 {
     fLogin = login;
     fPass = pass;
     fInitialCredit = fCredit = credit;
     fName = name;
     fSurname = surname;
-    fClientFile = "../res/clients/" + login + ".yml";
+    fClientFile = clientsPath + login + ".yml";
     fRentCarId = 0;
 }
 
-Client::Client(string login)
+Client::Client(const string login)
 {
-    fClientFile = "../res/clients/" + login + ".yml";
+    fClientFile = clientsPath + login + ".yml";
     YAML::Node client = YAML::LoadFile(fClientFile);
 
     string pass = client["personal"]["pass"].as<string>();
@@ -89,6 +92,7 @@ Client::Client(string login)
     string surname = client["personal"]["surname"].as<string>();
     int credit = client["credit"].as<int>();
     int rentCarId = client["rentCar"].as<int>();
+    int rentTime = client["rentTime"].as<int>();
 
     fLogin = login;
     fPass = pass;
@@ -97,6 +101,7 @@ Client::Client(string login)
     fSurname = surname;
     fInitialCredit = fCredit = credit;
     fRentCarId = rentCarId;
+    fRentTime = rentTime;
 }
 
 void Client::updateFile()
@@ -113,6 +118,7 @@ void Client::updateFile()
     clientYaml["credit"] = fCredit;
 
     clientYaml["rentCar"] = fRentCarId;
+    clientYaml["rentTime"] = fRentTime;
 
     fout << clientYaml;
 }
@@ -120,12 +126,6 @@ void Client::updateFile()
 bool Client::checkPass(string pass)
 {
     return fPass == pass;
-}
-
-void Client::deleteProfile()
-{
-    std::filesystem::remove(fClientFile);
-    *this = Client();
 }
 
 bool Client::isNull()
@@ -136,17 +136,33 @@ bool Client::isNull()
 void Client::rent(Car car)
 {
     fRentCarId = car.getId();
-    setCredit(fCredit - 10);
+
+    fRentTime = std::time(0) / 60;
+
+    // this is the initial fee
+    setCredit(fCredit - 1);
     car.rent();
     updateFile();
 }
 
-void Client::unrent()
+int Client::unrent()
 {
-    Car::getCarById(fRentCarId).unrent();
+    if (fRentCarId == 0)
+        return 1;
+    Car car = Car::getCarById(fRentCarId);
+    car.unrent();
+
+    int now = std::time(0) / 60;
+
+    int minutes = now - fRentTime;
+
+    fCredit -= car.getPrice() * minutes;
+
     fRentCarId = 0;
+    fRentTime = 0;
+
     updateFile();
-    // remove (credit/h) * time
+    return 0;
 }
 
 bool Client::hasRented()

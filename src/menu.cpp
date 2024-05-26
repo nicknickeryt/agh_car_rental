@@ -2,20 +2,37 @@
 #include <iostream>
 #include <map>
 #include <vector>
-#include <filesystem>
 
-#include "auth.hpp"
-#include "car.hpp"
-#include "menu.hpp"
-#include "utils.hpp"
+#include "auth.h"
+#include "car.h"
+#include "menu.h"
+#include "utils.h"
+#include "conf.h"
 
 using std::cin, std::cout, std::endl, std::string, std::map, std::vector;
 
 Client Menu::client = Client();
-vector<Car> cars = Car::getAllCars();
+
+vector<Car> cars;
+
+void Menu::tryInit()
+{
+    if (!Utils::checkFileDir(RES_DIR, 1))
+        Utils::printErr("Nie znaleziono katalogu zasobów. Utworzono domyślny.");
+    if (!Utils::checkFileDir(CARS_FILE, 1))
+        Utils::printErr("Nie znaleziono pliku konfiguracji samochodów. Utworzono domyślny.");
+    if (!Utils::checkFileDir(CLIENTS_DIR, 1))
+        Utils::printErr("Nie znaleziono katalogu danych klientów. Utworzono domyślny.");
+    if (!Utils::checkFileDir(REPORTS_FILE, 1))
+        Utils::printErr("Nie znaleziono pliku dziennika zgłoszeń. Utworzono domyślny.");
+    showLoginScreen();
+}
 
 void Menu::showLoginScreen()
 {
+    if (Car::getAllCars(cars))
+        return;
+
     cout << "\n| Car sharing |\n\n";
 
     int sel = Utils::promptSel({{0, "Zaloguj się"},
@@ -24,12 +41,33 @@ void Menu::showLoginScreen()
     switch (sel)
     {
     case 0:
-        Auth::showLogin(client) == 1 ? showLoginScreen() : showHomeScreen();
+    {
+        int ret = Auth::showLogin(client);
+        switch (ret)
+        {
+        case 0:
+            showHomeScreen();
+            break;
+        case 1:
+            Utils::printErr("Nieprawidłowy login");
+            showLoginScreen();
+            break;
+        case 2:
+            Utils::printErr("Nieprawidłowe hasło");
+            showLoginScreen();
+            break;
+        }
         break;
+    }
     case 1:
-        Auth::showRegister();
+    {
+        if (Auth::showRegister())
+            Utils::printErr("Konto z takim loginem już istnieje.");
+        else
+            cout << "Konto zostało utworzone. Możesz się teraz zalogować.\n\n";
         showLoginScreen();
         break;
+    }
     case 9:
         return;
         break;
@@ -43,12 +81,21 @@ void Menu::showHomeScreen()
 {
     cout << "Witaj " << client.getName() << " " << client.getSurname() << "!\n";
 
+    Utils::checkTime(client);
+
     map<int, string> promptMap{{1, "Wyświetl swój profil"},
                                {2, "Przeglądaj ofertę"},
+                               {7, "Zgłoś usterkę"},
                                {8, "Wyloguj"},
                                {9, "Wyjdź"}};
     if (client.hasRented())
-        promptMap[3] = "Zwróć: " + client.getRentCar().getBrand() + " " + client.getRentCar().getModel();
+    {
+        Car car = client.getRentCar();
+        cout << " Wypożyczony samochód: " << car.getBrand() << " " << car.getModel()
+             << " [" << time(0) / 60 - client.getRentTime() << " min/" << maxRentTime << "min]\n";
+
+        promptMap[3] = "Zwróć: " + car.getBrand() + " " + car.getModel();
+    }
 
     int sel = Utils::promptSel(promptMap);
 
@@ -63,6 +110,12 @@ void Menu::showHomeScreen()
     case 3:
         tryUnrent();
         break;
+    case 7:
+    {
+        Utils::reportIssue(client, Utils::promptInput("Opisz swój problem i zatwierdź [enter]."));
+        showHomeScreen();
+        break;
+    }
     case 8:
         logout();
         break;
@@ -81,25 +134,14 @@ void Menu::logout()
     showLoginScreen();
 }
 
-void Menu::deleteProfile()
-{
-    client.deleteProfile();
-    showLoginScreen();
-}
-
 void Menu::showProfile()
 {
     client.printInfo();
 
-    int sel = Utils::promptSel({{0, "Usuń profil"},
-                                {9, "Powrót do menu"}});
+    int sel = Utils::promptSel({{9, "Powrót do menu"}});
 
     switch (sel)
     {
-    case 0:
-        deleteProfile();
-        logout();
-        break;
     case 9:
         showHomeScreen();
         break;
@@ -118,7 +160,7 @@ void Menu::showCars()
     {
 
         cout << "  [" << i << "] " << car.getBrand() << " " << car.getModel() << endl
-             << "      Cena: " << car.getPrice() << "zł/h" << endl
+             << "      Cena: " << car.getPrice() << "zł/min" << endl
              << "      Dostępna ilość: " << car.getQuantity() << endl;
 
         i++;
@@ -127,19 +169,16 @@ void Menu::showCars()
     cout << endl;
 
     int sel = Utils::promptSel({{0, "Wypożycz samochód"},
+                                {1, "Wyświetl szczegóły o samochodzie"},
                                 {9, "Powrót do menu"}});
     switch (sel)
     {
     case 0:
-    {
-        cout << "» Podaj numer samochodu, który chcesz wypożyczyć:" << endl;
-        int n{};
-        cin >> n;
-
-        tryRent(n);
-
+        tryRent(Utils::promptNumInput("Podaj numer samochodu."));
         break;
-    }
+    case 1:
+        showCarDetails(Utils::promptNumInput("Podaj numer samochodu."));
+        break;
     case 9:
         showHomeScreen();
         break;
@@ -151,23 +190,59 @@ void Menu::showCars()
 
 void Menu::tryUnrent()
 {
-    cout << "Zwrócono samochód.\n";
+    client.unrent() ? cout << "Nie masz samochodu do zwrócenia.\n" : cout << "Zwrócono samochód.\n";
     showHomeScreen();
 }
-void Menu::tryRent(int n)
+
+void Menu::showCarDetails(const int n)
 {
-    int o = rentCar(n);
+    Car car = cars[n - 1];
+    cout << car.getBrand() << " " << car.getModel() << endl
+         << "  Cena: " << car.getPrice() << "zł/min" << endl
+         << "  Dostępna ilość: " << car.getQuantity() << endl
+         << "  Rok produkcji: " << car.getSpec(YEAR) << endl
+         << "  Moc [KM]: " << car.getSpec(HP) << endl
+         << "  Prędkość maksymalna: " << car.getSpec(VMAX) << endl
+         << "  Miejsca: " << car.getSpec(SEATS) << endl
+         << "  Drzwi: " << car.getSpec(DOOR) << endl
+         << endl;
+
+    int sel = Utils::promptSel({{0, "Wypożycz ten samochód"},
+                                {9, "Powrót do menu"}});
+
+    switch (sel)
+    {
+    case 0:
+        tryRent(n);
+        break;
+    case 9:
+        showHomeScreen();
+        break;
+    default:
+        showCarDetails(n);
+        break;
+    }
+}
+
+void Menu::tryRent(const int n)
+{
+    int o = rentCar(cars[n - 1]);
 
     switch (o)
     {
     case 0:
-        cout << "Wypożyczono samochód.\n";
+        cout << "Wypożyczono samochód " << cars[n - 1].getBrand() << " " << cars[n - 1].getModel() << ".\n";
         break;
     case 1:
         Utils::printErr("Ten samochód nie jest aktualnie dostępny.");
         break;
     case 2:
-        Utils::printErr("Nie masz pieniędzy, by wypożyczyć samochód.");
+        Utils::printErr((string) "Nie masz minimalnej ilości pieniędzy, by wypożyczyć samochód.\n" +
+                        "Dla bezpieczeństwa minimalna ilość pieniędzy to: \n" +
+                        "cena wypożyczenia samochodu * " +
+                        std::to_string(maxRentTime) +
+                        " minut + " +
+                        std::to_string(notReturnedFine));
         break;
     case 3:
         Utils::printErr("Już masz wypożyczony samochód.");
@@ -176,12 +251,15 @@ void Menu::tryRent(int n)
     showHomeScreen();
 }
 
-int Menu::rentCar(int n)
+int Menu::rentCar(Car &car)
 {
-    Car car = cars[n];
     if (car.getQuantity() <= 0)
         return 1;
-    if (Menu::client.getCredit() < 10)
+
+    // Note that for safety reasons the client must have a minimum amount of credits on their account.
+    // That is (car price per minute) * (maximum rent time from conf.h) + (fine for not returning the car)
+    int requiredCredits = car.getPrice() * maxRentTime + notReturnedFine;
+    if (Menu::client.getCredit() < requiredCredits)
         return 2;
     if (Menu::client.hasRented())
         return 3;

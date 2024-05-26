@@ -1,0 +1,52 @@
+# This is a config file for all available cars. It can be updated in runtime using appropriate methods.
+# This file is required for the program to function properly and it must have at least one car configured.
+#
+# The structure looks like this;
+#
+# cars:                       # main key
+#  1:                         # car id - these are next integers from onwards
+#    brand: "FSO"             # car brand
+#    model: "Polonez Caro"    # car model
+#    price: 10                # car price per minute
+#    quantity: 1              # amount of all cars this type
+#    specs:                   # misc car specifications - this should be self-explanatory
+#      year: 1993
+#      hp: 65
+#      vmax: 150
+#      seats: 5
+#      doors: 5
+
+cars:
+  1:
+    brand: "FSO"
+    model: "Polonez Caro"
+    price: 0.5
+    quantity: 1
+    specs:
+      year: 1993
+      hp: 65
+      vmax: 150
+      seats: 5
+      doors: 5
+  2:
+    brand: "ZAZ"
+    model: "Tavria"
+    price: 0.75
+    quantity: 3
+    specs:
+      year: 1989
+      hp: 50
+      vmax: 150
+      seats: 5
+      doors: 5
+  3:
+    brand: "Wartburg"
+    model: "353"
+    price: 1
+    quantity: 1
+    specs:
+      year: 1979
+      hp: 70
+      vmax: 120
+      seats: 5
+      doors: 5

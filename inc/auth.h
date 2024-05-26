@@ -1,10 +1,10 @@
-#include "client.hpp"
+#include "client.h"
 
 #pragma once
 
 class Auth
 {
 public:
-    static bool showLogin(Client &client);
+    static int showLogin(Client &client);
     static int showRegister();
 };

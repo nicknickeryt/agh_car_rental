@@ -2,38 +2,33 @@
 #include <vector>
 #include <filesystem>
 
-#include "auth.hpp"
-#include "client.hpp"
-#include "utils.hpp"
+#include "auth.h"
+#include "client.h"
+#include "utils.h"
+#include "conf.h"
 
 using std::cin, std::cout, std::endl, std::string, std::map, std::vector;
 
-string carsFile = "../res/cars.yml";
-
-int loginExists(string login)
-{
-    return std::filesystem::exists("../res/clients/" + login + ".yml");
-}
-
-bool Auth::showLogin(Client &client)
+int Auth::showLogin(Client &client)
 {
     Client retClient = Client();
-    string login = Utils::promptInput("Podaj login");
+    string login = Utils::promptInput(INPUT_LOGIN);
 
-    if (!loginExists(login))
-    {
-        Utils::printErr("Nieprawidłowy login");
+    if (!Utils::loginExists(login))
         return 1;
-    }
     else
     {
-        retClient = Client(login);
-        if (!retClient.checkPass(Utils::promptInput("Podaj hasło")))
+        try
         {
-            Utils::printErr("Nieprawidłowe hasło");
-            cout << "Prawidłowe to:" << retClient.getPass();
-            return 1;
+            retClient = Client(login);
         }
+        catch (exception e)
+        {
+            Utils::processException(CLIENT_PARSE);
+        }
+
+        if (!retClient.checkPass(Utils::promptInput(INPUT_PASS)))
+            return 2;
     }
     client = retClient;
     return 0;
@@ -48,28 +43,16 @@ static int processRegister(string login, string pass, string name, string surnam
 
 int Auth::showRegister()
 {
-    string login, pass, name, surname{};
+    string login = Utils::promptInput(INPUT_LOGIN);
 
-    cout << "Wprowadź dane nowego profilu:\n\n";
-
-    cout << "Podaj login:\n» ";
-    cin >> login;
-
-    if (loginExists(login))
-    {
-        Utils::printErr("Konto z takim loginem już istnieje");
+    if (Utils::loginExists(login))
         return 1;
-    }
 
-    cout << "Podaj hasło:\n» ";
-    cin >> pass;
-    cout << " Podaj imię:\n» ";
-    cin >> name;
-    cout << " Podaj nazwisko:\n» ";
-    cin >> surname;
+    string pass = Utils::promptInput(INPUT_PASS);
+    string name = Utils::promptInput(INPUT_NAME);
+    string surname = Utils::promptInput(INPUT_SURNAME);
 
     processRegister(login, pass, name, surname);
 
-    cout << "Konto " << name << " " << surname << " zostało utworzone. Możesz się teraz zalogować.\n\n";
     return 0;
 }

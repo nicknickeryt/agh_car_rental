@@ -1,8 +1,8 @@
+#pragma once
+
 #include <vector>
 #include <map>
 #include <string>
-
-#pragma once
 
 using std::string, std::map, std::vector;
 
@@ -20,7 +20,7 @@ class Car
 private:
     string brand;
     string model;
-    int price;
+    float price;
     int quantity;
 
     int id;
@@ -29,17 +29,17 @@ private:
 
 public:
     Car();
-    Car(string brand, string model, int price, int quantity, map<Spec, int> specs, int id);
+    Car(string brand, string model, float price, int quantity, map<Spec, int> specs, int id);
     string getBrand() const;
     string getModel() const;
-    int getPrice() const;
+    float getPrice() const;
     int getQuantity() const;
     int getId() const;
     map<Spec, int> getSpecs();
     int getSpec(Spec s);
-    static vector<Car> getAllCars();
+    static bool getAllCars(vector<Car> &cars);
 
-    static Car getCarById(int id);
+    static Car getCarById(const int id);
 
     bool isNull();
 

@@ -2,7 +2,7 @@
 
 #include "yaml-cpp/yaml.h"
 
-#include "car.hpp"
+#include "car.h"
 
 #pragma once
 
@@ -20,36 +20,36 @@ class Client
     string fClientFile;
 
     int fRentCarId = 0;
+    int fRentTime = 0;
 
-    static const int defaultCredit = 1000;
+    static const int defaultCredit = 10000;
 
 public:
-    void setName(string name);
-    void setSurname(string surname);
-    void setCredit(int credit);
+    void setName(const string name);
+    void setSurname(const string surname);
+    void setCredit(const int credit);
     void resetCredit();
 
     string getLogin();
-    string getPass(); /// TODO REMOVE IT!
     string getName();
     string getFile();
     string getSurname();
     int getCredit();
+    int getRentTime();
 
     void printInfo();
     bool checkPass(string pass);
-    void deleteProfile();
 
     bool isNull();
 
     void rent(Car car);
-    void unrent();
+    int unrent();
     bool hasRented();
     Car getRentCar();
 
     Client();
-    Client(string login, string pass, string name, string surname);
-    Client(string login, string pass, string name, string surname, int credit);
-    Client(string login);
+    Client(const string login, const string pass, const string name, const string surname);
+    Client(const string login, const string pass, const string name, const string surname, const int credit);
+    Client(const string login);
     void updateFile();
 };
