@@ -1,10 +1,11 @@
+#pragma once
+
 #include <string>
 #include <map>
 
 using std::string, std::map;
 
-enum Message
-{
+enum Message {
   ERR_RES,
   ERR_CARS,
   ERR_CLIENTS,
@@ -15,6 +16,23 @@ enum Message
   ERR_LOGIN_EXISTS,
 
   ERR_ALREADY_RENTED,
+  ERR_NOT_RENTED,
+
+  ERR_NOT_AVAIL,
+  ERR_NOT_ENOUGH_CREDIT,
+
+  ERR_NAN,
+
+  ERR_TIME_1,
+  ERR_TIME_2,
+
+  EXC_CLIENT_PARSE,
+  EXC_CARS_PARSE,
+  EXC_FILE_SAVE,
+  EXC_DIR_CREATE,
+  EXC_DEFAULT,
+
+  RENTAL_NAME,
 
   LOG_IN,
   REGISTER,
@@ -24,11 +42,14 @@ enum Message
 
   ACCOUNT_CREATED,
 
+  WELCOME,
+
   SHOW_PROFILE,
   BROWSE_CARS,
   REPORT_ISSUE,
   LOGOUT,
   CAR_RENTED,
+  CAR_RETURN,
 
   REPORT_ISSUE_PROMPT,
 
@@ -39,6 +60,11 @@ enum Message
   PRICE,
   CURRENCY,
   AVAIL_AMOUNT,
+  YEAR,
+  HP,
+  VMAX,
+  SEATS,
+  DOOR,
 
   RENT,
   SEE_DETAILS,
@@ -50,9 +76,20 @@ enum Message
   INPUT_NAME,
   INPUT_SURNAME,
 
+  RENTED,
+  UNRENTED,
+
+  CL_INFO_TITLE,
+  CL_INFO_LOGIN,
+  CL_INFO_NAME,
+  CL_INFO_SURNAME,
+  CL_INFO_CREDIT,
+  CL_INFO_RENTED,
+  CL_INFO_RENTED_NONE,
+
 };
 
-map<Message, string> translateableMessages{
+const map<Message, string> translateableMessages = {
     {ERR_RES, "Nie znaleziono katalogu zasobów. Utworzono domyślny."},
     {ERR_CARS, "Nie znaleziono pliku konfiguracji samochodów. Utworzono domyślny."},
     {ERR_CLIENTS, "Nie znaleziono katalogu danych klientów. Utworzono domyślny."},
@@ -63,6 +100,25 @@ map<Message, string> translateableMessages{
     {ERR_LOGIN_EXISTS, "Konto z takim loginem już istnieje."},
 
     {ERR_ALREADY_RENTED, "Już masz wypożyczony samochód."},
+    {ERR_NOT_RENTED, "Nie masz samochodu do zwrócenia."},
+
+    {ERR_NOT_AVAIL, "Ten samochód nie jest aktualnie dostępny."},
+    {ERR_NOT_ENOUGH_CREDIT, (string) "Nie masz minimalnej ilości pieniędzy, by wypożyczyć samochód.\n" +
+                                "Dla bezpieczeństwa minimalna ilość pieniędzy to: \n" +
+                                "cena wypożyczenia samochodu * "},
+
+    {ERR_NAN, "Podaj poprawny znak [cyfrę]."},
+
+    {ERR_TIME_1, "Przekroczono maksymalny czas wypożyczenia.Kara w wysokości"},
+    {ERR_TIME_2, "została pobrana z konta.a pojazd został zablokowany."},
+
+    {EXC_CLIENT_PARSE, "Nie można załadować danych użytkownika. Sprawdź konfigurację."},
+    {EXC_CARS_PARSE, "Nie można załadować danych samochodów. Sprawdź konfigurację."},
+    {EXC_FILE_SAVE, "Nie można zapisać niektórych plików.Sprawdź konfigurację."},
+    {EXC_DIR_CREATE, "Nie można utworzyć niektórych katalogów. Sprawdź konfigurację."},
+    {EXC_DEFAULT, "Wystąpił nieznany błąd."},
+
+    {RENTAL_NAME, "\n| Car sharing |\n\n"},
 
     {LOG_IN, "Zaloguj się"},
     {REGISTER, "Utwórz nowy profil"},
@@ -72,11 +128,14 @@ map<Message, string> translateableMessages{
 
     {ACCOUNT_CREATED, "Konto zostało utworzone. Możesz się teraz zalogować.\n\n"},
 
+    {WELCOME, "Witaj"},
+
     {SHOW_PROFILE, "Wyświetl swój profil"},
     {BROWSE_CARS, "Przeglądaj ofertę"},
     {REPORT_ISSUE, "Zgłoś usterkę"},
     {LOGOUT, "Wyloguj"},
     {CAR_RENTED, " Wypożyczony samochód: "},
+    {CAR_RETURN, "Zwróć"},
 
     {REPORT_ISSUE_PROMPT, "Opisz swój problem i zatwierdź [enter]."},
 
@@ -87,6 +146,11 @@ map<Message, string> translateableMessages{
     {PRICE, "Cena"},
     {CURRENCY, "zł"},
     {AVAIL_AMOUNT, "Dostępna ilość"},
+    {YEAR, "Rok produkcji"},
+    {HP, "Moc [KM]"},
+    {VMAX, "Prędkość maksymalna"},
+    {SEATS, "Miejsca"},
+    {DOOR, "Drzwi"},
 
     {RENT, "Wypożycz samochód"},
     {SEE_DETAILS, "Wyświetl szczegóły o samochodzie"},
@@ -97,6 +161,17 @@ map<Message, string> translateableMessages{
     {INPUT_PASS, "Podaj hasło"},
     {INPUT_NAME, "Podaj imię"},
     {INPUT_SURNAME, "Podaj nazwisko"},
+
+    {RENTED, "Wypożyczono samochód."},
+    {UNRENTED, "Zwrócono samochód."},
+
+    {CL_INFO_TITLE, "\nProfil\n"},
+    {CL_INFO_LOGIN, "  Login: "},
+    {CL_INFO_NAME, "  Imię: "},
+    {CL_INFO_SURNAME, "  Nazwisko: "},
+    {CL_INFO_CREDIT, "  Kredyt: "},
+    {CL_INFO_RENTED, "  Wypożyczony samochód: "},
+    {CL_INFO_RENTED_NONE, "brak"},
 };
 
 const string rules = R"(
@@ -195,3 +270,9 @@ cars:
       seats: 5
       doors: 5
 )";
+
+class Messages {
+public:
+  static string getMessage(const Message message);
+  static void sendMessage(const Message message);
+};

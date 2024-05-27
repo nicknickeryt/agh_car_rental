@@ -9,7 +9,7 @@
 #include "utils.h"
 #include "conf.h"
 
-using std::string, std::map, std::vector, std::cin, std::cout, std::exception;
+using std::string, std::map, std::vector;
 
 Car::Car() {}
 
@@ -23,8 +23,7 @@ map<Spec, int> Car::getSpecs() { return specs; }
 int Car::getSpec(Spec s) { return specs[s]; }
 int Car::getId() const { return id; }
 
-Car Car::getCarById(const int id)
-{
+Car Car::getCarById(const int id) {
     YAML::Node cars = YAML::LoadFile(carsConf);
     YAML::Node root = cars["cars"];
     YAML::Node car = root[id];
@@ -35,31 +34,27 @@ Car Car::getCarById(const int id)
     int quantity = car["quantity"].as<int>();
 
     map<Spec, int> specs{
-        {Spec::YEAR, car["specs"]["year"].as<int>()},
-        {Spec::HP, car["specs"]["hp"].as<int>()},
-        {Spec::VMAX, car["specs"]["vmax"].as<int>()},
-        {Spec::SEATS, car["specs"]["seats"].as<int>()},
-        {Spec::DOOR, car["specs"]["doors"].as<int>()},
+        {SPEC_YEAR, car["specs"]["year"].as<int>()},
+        {SPEC_HP, car["specs"]["hp"].as<int>()},
+        {SPEC_VMAX, car["specs"]["vmax"].as<int>()},
+        {SPEC_SEATS, car["specs"]["seats"].as<int>()},
+        {SPEC_DOOR, car["specs"]["doors"].as<int>()},
     };
     return Car(brand, model, price, quantity, specs, id);
 }
 
-bool Car::isNull()
-{
+bool Car::isNull() {
     return brand == "" || model == "" || price == 0;
 }
 
-bool Car::getAllCars(vector<Car> &carsV)
-{
-    try
-    {
+bool Car::getAllCars(vector<Car> &carsV) {
+    try {
         vector<Car> ret;
         YAML::Node cars = YAML::LoadFile(carsConf);
 
         YAML::Node root = cars["cars"];
 
-        for (auto x : root)
-        {
+        for (auto x : root) {
             int i = x.first.as<int>();
             YAML::Node car = root[i];
 
@@ -69,11 +64,11 @@ bool Car::getAllCars(vector<Car> &carsV)
             int quantity = car["quantity"].as<int>();
 
             map<Spec, int> specs{
-                {Spec::YEAR, car["specs"]["year"].as<int>()},
-                {Spec::HP, car["specs"]["hp"].as<int>()},
-                {Spec::VMAX, car["specs"]["vmax"].as<int>()},
-                {Spec::SEATS, car["specs"]["seats"].as<int>()},
-                {Spec::DOOR, car["specs"]["doors"].as<int>()},
+                {SPEC_YEAR, car["specs"]["year"].as<int>()},
+                {SPEC_HP, car["specs"]["hp"].as<int>()},
+                {SPEC_VMAX, car["specs"]["vmax"].as<int>()},
+                {SPEC_SEATS, car["specs"]["seats"].as<int>()},
+                {SPEC_DOOR, car["specs"]["doors"].as<int>()},
             };
 
             ret.push_back(Car(brand, model, price, quantity, specs, i));
@@ -81,19 +76,12 @@ bool Car::getAllCars(vector<Car> &carsV)
         carsV = ret;
         return 0;
     }
-    catch (exception e)
-    {
+    catch (exception e) {
         Utils::processException(CARS_PARSE);
     }
     return 1;
 }
 
-void Car::rent()
-{
-    quantity--;
-}
+void Car::rent() { quantity--; }
 
-void Car::unrent()
-{
-    quantity++;
-}
+void Car::unrent() { quantity++; }

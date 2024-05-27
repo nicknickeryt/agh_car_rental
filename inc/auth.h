@@ -2,8 +2,7 @@
 
 #pragma once
 
-class Auth
-{
+class Auth {
 public:
     static int showLogin(Client &client);
     static int showRegister();

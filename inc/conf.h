@@ -4,7 +4,8 @@
 
 using std::string;
 
-inline string resPath = "res/";                      // path of resources directory
+inline string slash = "/";                           // the slash used in your OS. Should be set to '/' for Linux or '\\' for Windows.
+inline string resPath = "res" + slash;               // path of resources directory
 inline string carsConf = resPath + "cars.yml";       // path of cars conf file
 inline string clientsPath = resPath + "clients";     // path of client directory
 inline string reportsPath = resPath + "reports.log"; // path of client reports log

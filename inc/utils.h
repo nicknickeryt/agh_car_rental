@@ -2,27 +2,25 @@
 #include <map>
 
 #include "client.h"
+#include "messages.h"
 
 using std::string, std::map, std::exception;
 
-enum ExceptionType
-{
+enum ExceptionType {
     CLIENT_PARSE,
     CARS_PARSE,
     FILE_SAVE,
     DIR_CREATE
 };
 
-enum FileDir
-{
+enum FileDir {
     RES_DIR,
     CARS_FILE,
     CLIENTS_DIR,
     REPORTS_FILE
 };
 
-class Utils
-{
+class Utils {
 public:
     static int promptSel();
     static int promptSel(const map<int, string> promptMap);
@@ -51,6 +49,4 @@ public:
     static void reportIssue(Client &client, const string issue);
 
     static bool validateInt(const string &input);
-
-    static string getMessage(const Message message);
 };

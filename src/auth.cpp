@@ -6,48 +6,39 @@
 #include "client.h"
 #include "utils.h"
 #include "conf.h"
-#include "strings.h"
+#include "messages.h"
 
-using std::cin, std::cout, std::endl, std::string, std::map, std::vector;
+using std::string, std::map, std::vector;
 
-int Auth::showLogin(Client &client)
-{
+int Auth::showLogin(Client &client) {
     Client retClient = Client();
     string login = Utils::promptInput(INPUT_LOGIN);
 
-    if (!Utils::loginExists(login))
-        return 1;
-    else
-    {
-        try
-        {
+    if (!Utils::loginExists(login)) return 1;
+    else {
+        try {
             retClient = Client(login);
         }
-        catch (exception e)
-        {
+        catch (exception e) {
             Utils::processException(CLIENT_PARSE);
         }
 
-        if (!retClient.checkPass(Utils::promptInput(INPUT_PASS)))
-            return 2;
+        if (!retClient.checkPass(Utils::promptInput(INPUT_PASS))) return 2;
     }
     client = retClient;
     return 0;
 }
 
-static int processRegister(string login, string pass, string name, string surname)
-{
+static int processRegister(string login, string pass, string name, string surname) {
     Client client(login, pass, name, surname);
     client.updateFile();
     return 0;
 }
 
-int Auth::showRegister()
-{
+int Auth::showRegister() {
     string login = Utils::promptInput(INPUT_LOGIN);
 
-    if (Utils::loginExists(login))
-        return 1;
+    if (Utils::loginExists(login)) return 1;
 
     string pass = Utils::promptInput(INPUT_PASS);
     string name = Utils::promptInput(INPUT_NAME);

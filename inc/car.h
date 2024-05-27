@@ -6,17 +6,15 @@
 
 using std::string, std::map, std::vector;
 
-enum Spec
-{
-    YEAR,
-    HP,
-    VMAX,
-    SEATS,
-    DOOR
+enum Spec {
+    SPEC_YEAR,
+    SPEC_HP,
+    SPEC_VMAX,
+    SPEC_SEATS,
+    SPEC_DOOR
 };
 
-class Car
-{
+class Car {
 private:
     string brand;
     string model;

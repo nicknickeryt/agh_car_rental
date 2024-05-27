@@ -7,30 +7,19 @@
 #include "client.h"
 #include "utils.h"
 #include "conf.h"
+#include "messages.h"
 
 #include "yaml-cpp/yaml.h"
 
 using std::string, std::cout, std::endl;
 
-void Client::setName(const string name)
-{
-    fName = name;
-}
+void Client::setName(const string name){ fName = name;}
 
-void Client::setSurname(const string surname)
-{
-    fSurname = surname;
-}
+void Client::setSurname(const string surname){ fSurname = surname; }
 
-void Client::setCredit(const int credit)
-{
-    fCredit = credit;
-}
+void Client::setCredit(const int credit){ fCredit = credit; }
 
-void Client::resetCredit()
-{
-    fCredit = fInitialCredit;
-}
+void Client::resetCredit(){ fCredit = fInitialCredit; }
 
 string Client::getLogin() { return fLogin; }
 string Client::getName() { return fName; }
@@ -40,50 +29,45 @@ int Client::getCredit() { return fCredit; }
 Car Client::getRentCar() { return Car::getCarById(fRentCarId); }
 int Client::getRentTime() { return fRentTime; }
 
-void Client::printInfo()
-{
-    cout << "\nProfil\n";
-    cout << "  Login: " << fLogin << endl;
-    cout << "  Imię: " << fName << endl;
-    cout << "  Nazwisko: " << fSurname << endl;
-    cout << "  Kredyt: " << fCredit << "\n\n";
+void Client::printInfo() {
+    Messages::sendMessage(CL_INFO_TITLE);
+    cout << Messages::getMessage(CL_INFO_LOGIN) << fLogin << endl;
+    cout << Messages::getMessage(CL_INFO_NAME) << fName << endl;
+    cout << Messages::getMessage(CL_INFO_SURNAME) << fSurname << endl;
+    cout << Messages::getMessage(CL_INFO_CREDIT) << fCredit << "\n\n";
 
-    string rentedCar = hasRented() ? getRentCar().getBrand() + " " + getRentCar().getModel() : "brak";
+    string rentedCar = hasRented() ? getRentCar().getBrand() + " " + getRentCar().getModel() : Messages::getMessage(CL_INFO_RENTED_NONE);
 
-    cout << "  Wypożyczony samochód: " << rentedCar << "\n\n";
+    cout << Messages::getMessage(CL_INFO_RENTED) << rentedCar << "\n\n";
 }
 
-Client::Client()
-{
+Client::Client() {
     fInitialCredit = fCredit = defaultCredit;
     fName = fSurname = "";
     fClientFile = "";
 }
 
-Client::Client(const string login, const string pass, const string name, const string surname)
-{
+Client::Client(const string login, const string pass, const string name, const string surname) {
     fLogin = login;
     fPass = pass;
     fInitialCredit = fCredit = defaultCredit;
     fName = name;
     fSurname = surname;
-    fClientFile = clientsPath + login + ".yml";
+    fClientFile = clientsPath + slash + login + ".yml";
 }
 
-Client::Client(const string login, const string pass, const string name, const string surname, const int credit)
-{
+Client::Client(const string login, const string pass, const string name, const string surname, const int credit) {
     fLogin = login;
     fPass = pass;
     fInitialCredit = fCredit = credit;
     fName = name;
     fSurname = surname;
-    fClientFile = clientsPath + login + ".yml";
+    fClientFile = clientsPath + slash + login + ".yml";
     fRentCarId = 0;
 }
 
-Client::Client(const string login)
-{
-    fClientFile = clientsPath + login + ".yml";
+Client::Client(const string login) {
+    fClientFile = clientsPath + slash + login + ".yml";
     YAML::Node client = YAML::LoadFile(fClientFile);
 
     string pass = client["personal"]["pass"].as<string>();
@@ -104,8 +88,7 @@ Client::Client(const string login)
     fRentTime = rentTime;
 }
 
-void Client::updateFile()
-{
+void Client::updateFile() {
     std::ofstream fout(fClientFile);
     YAML::Node clientYaml = YAML::LoadFile(fClientFile);
 
@@ -123,18 +106,11 @@ void Client::updateFile()
     fout << clientYaml;
 }
 
-bool Client::checkPass(string pass)
-{
-    return fPass == pass;
-}
+bool Client::checkPass(string pass){ return fPass == pass; }
 
-bool Client::isNull()
-{
-    return fName == "" || fSurname == "" || fLogin == "" || fPass == "";
-}
+bool Client::isNull() { return fName == "" || fSurname == "" || fLogin == "" || fPass == ""; }
 
-void Client::rent(Car car)
-{
+void Client::rent(Car car) {
     fRentCarId = car.getId();
 
     fRentTime = std::time(0) / 60;
@@ -145,10 +121,8 @@ void Client::rent(Car car)
     updateFile();
 }
 
-int Client::unrent()
-{
-    if (fRentCarId == 0)
-        return 1;
+int Client::unrent() {
+    if (fRentCarId == 0) return 1;
     Car car = Car::getCarById(fRentCarId);
     car.unrent();
 
@@ -165,7 +139,4 @@ int Client::unrent()
     return 0;
 }
 
-bool Client::hasRented()
-{
-    return fRentCarId != 0;
-}
+bool Client::hasRented() { return fRentCarId != 0; }
