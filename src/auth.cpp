@@ -6,6 +6,7 @@
 #include "client.h"
 #include "utils.h"
 #include "conf.h"
+#include "strings.h"
 
 using std::cin, std::cout, std::endl, std::string, std::map, std::vector;
 

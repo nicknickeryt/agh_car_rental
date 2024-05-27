@@ -8,6 +8,7 @@
 #include "menu.h"
 #include "utils.h"
 #include "conf.h"
+#include "strings.h"
 
 using std::cin, std::cout, std::endl, std::string, std::map, std::vector;
 
@@ -18,13 +19,14 @@ vector<Car> cars;
 void Menu::tryInit()
 {
     if (!Utils::checkFileDir(RES_DIR, 1))
-        Utils::printErr("Nie znaleziono katalogu zasobów. Utworzono domyślny.");
+        Utils::printErr(ERR_RES);
     if (!Utils::checkFileDir(CARS_FILE, 1))
-        Utils::printErr("Nie znaleziono pliku konfiguracji samochodów. Utworzono domyślny.");
+        Utils::printErr(ERR_CARS);
     if (!Utils::checkFileDir(CLIENTS_DIR, 1))
-        Utils::printErr("Nie znaleziono katalogu danych klientów. Utworzono domyślny.");
+        Utils::printErr(ERR_CLIENTS);
     if (!Utils::checkFileDir(REPORTS_FILE, 1))
-        Utils::printErr("Nie znaleziono pliku dziennika zgłoszeń. Utworzono domyślny.");
+        Utils::printErr(ERR_REPORTS);
+
     showLoginScreen();
 }
 
@@ -35,9 +37,9 @@ void Menu::showLoginScreen()
 
     cout << "\n| Car sharing |\n\n";
 
-    int sel = Utils::promptSel({{0, "Zaloguj się"},
-                                {1, "Utwórz nowy profil"},
-                                {9, "Wyjdź"}});
+    int sel = Utils::promptSel({{0, LOG_IN},
+                                {1, REGISTER},
+                                {9, QUIT}});
     switch (sel)
     {
     case 0:
@@ -49,11 +51,11 @@ void Menu::showLoginScreen()
             showHomeScreen();
             break;
         case 1:
-            Utils::printErr("Nieprawidłowy login");
+            Utils::printErr(ERR_WRONG_LOGIN);
             showLoginScreen();
             break;
         case 2:
-            Utils::printErr("Nieprawidłowe hasło");
+            Utils::printErr(ERR_WRONG_PASS);
             showLoginScreen();
             break;
         }
@@ -61,12 +63,25 @@ void Menu::showLoginScreen()
     }
     case 1:
     {
-        if (Auth::showRegister())
-            Utils::printErr("Konto z takim loginem już istnieje.");
-        else
-            cout << "Konto zostało utworzone. Możesz się teraz zalogować.\n\n";
-        showLoginScreen();
-        break;
+
+        cout << rules << endl;
+
+        int sel = Utils::promptSel({{0, ACCEPT_RULES},
+                                    {9, QUIT}});
+        switch (sel)
+        {
+        case 0:
+        {
+            if (Auth::showRegister())
+                Utils::printErr(ERR_LOGIN_EXISTS);
+            else
+                cout << Utils::getMessage(ACCOUNT_CREATED);
+            showLoginScreen();
+            break;
+        }
+        default:
+            exit(0);
+        }
     }
     case 9:
         return;
@@ -83,15 +98,15 @@ void Menu::showHomeScreen()
 
     Utils::checkTime(client);
 
-    map<int, string> promptMap{{1, "Wyświetl swój profil"},
-                               {2, "Przeglądaj ofertę"},
-                               {7, "Zgłoś usterkę"},
-                               {8, "Wyloguj"},
-                               {9, "Wyjdź"}};
+    map<int, string> promptMap{{1, Utils::getMessage(SHOW_PROFILE)},
+                               {2, Utils::getMessage(BROWSE_CARS)},
+                               {7, Utils::getMessage(REPORT_ISSUE)},
+                               {8, Utils::getMessage(LOGOUT)},
+                               {9, Utils::getMessage(QUIT)}};
     if (client.hasRented())
     {
         Car car = client.getRentCar();
-        cout << " Wypożyczony samochód: " << car.getBrand() << " " << car.getModel()
+        cout << Utils::getMessage(CAR_RENTED) << car.getBrand() << " " << car.getModel()
              << " [" << time(0) / 60 - client.getRentTime() << " min/" << maxRentTime << "min]\n";
 
         promptMap[3] = "Zwróć: " + car.getBrand() + " " + car.getModel();
@@ -112,7 +127,7 @@ void Menu::showHomeScreen()
         break;
     case 7:
     {
-        Utils::reportIssue(client, Utils::promptInput("Opisz swój problem i zatwierdź [enter]."));
+        Utils::reportIssue(client, Utils::promptInput(REPORT_ISSUE_PROMPT));
         showHomeScreen();
         break;
     }
@@ -138,7 +153,7 @@ void Menu::showProfile()
 {
     client.printInfo();
 
-    int sel = Utils::promptSel({{9, "Powrót do menu"}});
+    int sel = Utils::promptSel({{9, BACK_MENU}});
 
     switch (sel)
     {
@@ -153,31 +168,31 @@ void Menu::showProfile()
 
 void Menu::showCars()
 {
-    cout << "\nDostępne samochody\n\n";
+    cout << Utils::getMessage(AVAIL_CARS);
 
     int i = 1;
     for (Car car : cars)
     {
 
         cout << "  [" << i << "] " << car.getBrand() << " " << car.getModel() << endl
-             << "      Cena: " << car.getPrice() << "zł/min" << endl
-             << "      Dostępna ilość: " << car.getQuantity() << endl;
+             << "      " << Utils::getMessage(PRICE) << ": " << car.getPrice() << Utils::getMessage(CURRENCY) << "/min" << endl
+             << "      " << Utils::getMessage(AVAIL_AMOUNT) << ": " << car.getQuantity() << endl;
 
         i++;
     }
 
     cout << endl;
 
-    int sel = Utils::promptSel({{0, "Wypożycz samochód"},
-                                {1, "Wyświetl szczegóły o samochodzie"},
-                                {9, "Powrót do menu"}});
+    int sel = Utils::promptSel({{0, RENT},
+                                {1, SEE_DETAILS},
+                                {9, BACK_MENU}});
     switch (sel)
     {
     case 0:
-        tryRent(Utils::promptNumInput("Podaj numer samochodu."));
+        tryRent(Utils::promptNumInput(RENT_INPUT_NUM));
         break;
     case 1:
-        showCarDetails(Utils::promptNumInput("Podaj numer samochodu."));
+        showCarDetails(Utils::promptNumInput(RENT_INPUT_NUM));
         break;
     case 9:
         showHomeScreen();
@@ -207,8 +222,8 @@ void Menu::showCarDetails(const int n)
          << "  Drzwi: " << car.getSpec(DOOR) << endl
          << endl;
 
-    int sel = Utils::promptSel({{0, "Wypożycz ten samochód"},
-                                {9, "Powrót do menu"}});
+    int sel = Utils::promptSel({{0, RENT},
+                                {9, BACK_MENU}});
 
     switch (sel)
     {
@@ -245,7 +260,7 @@ void Menu::tryRent(const int n)
                         std::to_string(notReturnedFine));
         break;
     case 3:
-        Utils::printErr("Już masz wypożyczony samochód.");
+        Utils::printErr(ERR_ALREADY_RENTED);
         break;
     }
     showHomeScreen();

@@ -10,7 +10,7 @@
 #include "utils.h"
 #include "conf.h"
 #include "car.h"
-#include "defaultCarsConf.h"
+#include "strings.h"
 #include "client.h"
 
 using std::cout, std::cin, std::endl, std::string, std::map;
@@ -122,6 +122,18 @@ int Utils::promptSel(const map<int, string> promptMap)
     return ret;
 }
 
+int Utils::promptSel(const map<int, Message> promptMap)
+{
+    map<int, string> finPromptMap{};
+
+    for (auto x : promptMap)
+    {
+        finPromptMap[x.first] = getMessage(x.second);
+    }
+
+    return promptSel(finPromptMap);
+}
+
 bool Utils::validateInt(const std::string &input)
 {
     std::istringstream iss(input);
@@ -157,19 +169,25 @@ int Utils::promptNumInput(const string promptText)
     return ret;
 }
 
-string Utils::promptInput(const PredefPromptType type)
+int Utils::promptNumInput(const Message message)
 {
-    cout << predefPromptText[type] << endl;
+    return promptNumInput(getMessage(message));
+}
 
-    string ret{};
-    cout << "» ";
-    cin >> ret;
-    return ret;
+string Utils::promptInput(const Message message)
+{
+
+    return promptInput(getMessage(message));
 }
 
 void Utils::printErr(const string errText)
 {
     cout << "[ ! ] " << errText << endl;
+}
+
+void Utils::printErr(Message message)
+{
+    cout << "[ ! ] " << getMessage(message) << endl;
 }
 
 bool Utils::loginExists(const string login)
@@ -222,4 +240,9 @@ void Utils::reportIssue(Client &client, const string issue)
     }
     else
         processException(FILE_SAVE);
+}
+
+string Utils::getMessage(const Message message)
+{
+    return translateableMessages[message];
 }

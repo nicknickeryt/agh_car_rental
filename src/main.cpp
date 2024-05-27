@@ -15,9 +15,8 @@ int main()
 {
     /* TODO
      * clean up this mess
-     * hash passwords and remove Client#getPassword
-     * add car location with dummy gps function
-     * add rules in menu and while registering
+     * hash passwords
+     * translateable messages
      */
     Menu::tryInit();
 }
