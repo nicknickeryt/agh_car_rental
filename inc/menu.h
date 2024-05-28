@@ -5,14 +5,12 @@
 
 using std::string;
 
-class Menu
-{
+class Menu {
 public:
     static Client client;
     static void showLoginScreen();
     static void showHomeScreen();
     static void logout();
-    static void deleteProfile();
     static void showProfile();
     static void showCars();
     static void showCarDetails(const int n);
