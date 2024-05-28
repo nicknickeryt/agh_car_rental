@@ -4,12 +4,14 @@
 #include <filesystem>
 #include <ctime>
 
+#include "bcrypt.h"
+#include "yaml-cpp/yaml.h"
+
 #include "client.h"
 #include "utils.h"
 #include "conf.h"
 #include "messages.h"
 
-#include "yaml-cpp/yaml.h"
 
 using std::string, std::cout, std::endl;
 
@@ -49,7 +51,7 @@ Client::Client() {
 
 Client::Client(const string login, const string pass, const string name, const string surname) {
     fLogin = login;
-    fPass = pass;
+    fPass = bcrypt::generateHash(pass);
     fInitialCredit = fCredit = defaultCredit;
     fName = name;
     fSurname = surname;
@@ -58,7 +60,7 @@ Client::Client(const string login, const string pass, const string name, const s
 
 Client::Client(const string login, const string pass, const string name, const string surname, const int credit) {
     fLogin = login;
-    fPass = pass;
+    fPass = bcrypt::generateHash(pass);;
     fInitialCredit = fCredit = credit;
     fName = name;
     fSurname = surname;
@@ -106,7 +108,7 @@ void Client::updateFile() {
     fout << clientYaml;
 }
 
-bool Client::checkPass(string pass){ return fPass == pass; }
+bool Client::checkPass(string pass){ return bcrypt::validatePassword(pass, fPass); }
 
 bool Client::isNull() { return fName == "" || fSurname == "" || fLogin == "" || fPass == ""; }
 
