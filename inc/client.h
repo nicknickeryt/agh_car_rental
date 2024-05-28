@@ -8,8 +8,7 @@
 
 using std::string;
 
-class Client
-{
+class Client {
     string fLogin;
     string fPass;
     string fName;
