@@ -2,6 +2,8 @@
 #include <vector>
 #include <filesystem>
 
+#include "bcrypt.h"
+
 #include "auth.h"
 #include "client.h"
 #include "utils.h"
@@ -29,10 +31,10 @@ int Auth::showLogin(Client &client) {
     return 0;
 }
 
-static int processRegister(string login, string pass, string name, string surname) {
+void Auth::processRegister(string login, string pass, string name, string surname) {
+
     Client client(login, pass, name, surname);
     client.updateFile();
-    return 0;
 }
 
 int Auth::showRegister() {
@@ -43,7 +45,7 @@ int Auth::showRegister() {
     string pass = Utils::promptInput(INPUT_PASS);
     string name = Utils::promptInput(INPUT_NAME);
     string surname = Utils::promptInput(INPUT_SURNAME);
-
+    
     processRegister(login, pass, name, surname);
 
     return 0;
