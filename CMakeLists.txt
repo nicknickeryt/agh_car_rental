@@ -8,6 +8,15 @@ project(
 
 include(FetchContent)
 
+# Fetch Bcrypt.cpp library
+FetchContent_Declare(
+  Bcrypt
+  GIT_REPOSITORY https://github.com/hilch/Bcrypt.cpp.git
+  GIT_TAG master
+)
+FetchContent_MakeAvailable(Bcrypt)
+
+# Fetch yaml-cpp library
 FetchContent_Declare(
   yaml-cpp
   GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
@@ -25,4 +34,4 @@ include_directories( inc )
 
 file ( GLOB SOURCES "./src/*.cpp" )
 add_executable( ${PROJECT_NAME} ${SOURCES} )
-target_link_libraries(${PROJECT_NAME} yaml-cpp::yaml-cpp)
+target_link_libraries(${PROJECT_NAME} bcrypt yaml-cpp::yaml-cpp)
