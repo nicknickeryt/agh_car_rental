@@ -15,7 +15,7 @@ Car::Car() {}
 
 Car::Car(string brand, string model, float price, int quantity, map<Spec, int> specs, int id) : brand(brand), model(model), price(price), quantity(quantity), specs(specs), id(id) {}
 
-string Car::getBrand() const { return brand; }
+string Car::getBrand() const { return brand; } 
 string Car::getModel() const { return model; }
 float Car::getPrice() const { return price; }
 int Car::getQuantity() const { return quantity; }

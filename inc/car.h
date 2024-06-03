@@ -22,9 +22,10 @@ private:
     float price;
     int quantity;
 
+    map<Spec, int> specs;
+    
     int id;
 
-    map<Spec, int> specs;
 
 public:
     Car();
