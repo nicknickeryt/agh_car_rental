@@ -4,7 +4,14 @@
 
 using std::string;
 
-inline string slash = "/";                           // the slash used in your OS. Should be set to '/' for Linux or '\\' for Windows.
+// The slash used in your OS. Should be automatically set to '/' for Unix-like systems or '\\' for Windows.
+inline string slash =
+#if defined _WIN32 || defined __CYGWIN__
+    "\\";
+#else
+    "/";
+#endif  
+                   
 inline string resPath = "res" + slash;               // path of resources directory
 inline string carsConf = resPath + "cars.yml";       // path of cars conf file
 inline string clientsPath = resPath + "clients";     // path of client directory
