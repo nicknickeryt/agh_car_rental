@@ -1,6 +1,7 @@
-#include "client.h"
+#ifndef AUTH_H
+#define AUTH_H
 
-#pragma once
+#include "client.h"
 
 class Auth {
 public:
@@ -8,3 +9,5 @@ public:
     static int showRegister();
     static void processRegister(string login, string pass, string name, string surname);
 };
+
+#endif // AUTH_H

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CONF_H
+#define CONF_H
 
 #include <string>
 
@@ -18,3 +19,5 @@ inline string clientsPath = resPath + "clients";     // path of client directory
 inline string reportsPath = resPath + "reports.log"; // path of client reports log
 inline int maxRentTime = 720;                        // max car rent time in minutes
 inline int notReturnedFine = 250;                    // fine for not returning the car within maxRentTime
+
+#endif // CONF_H

@@ -1,3 +1,6 @@
+#ifndef MENU_H
+#define MENU_H
+
 #include <string>
 
 #include "client.h"
@@ -19,3 +22,5 @@ public:
     static int rentCar(Car &car);
     static void tryInit();
 };
+
+#endif // MENU_H

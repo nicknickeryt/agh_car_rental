@@ -1,10 +1,11 @@
+#ifndef CLIENT_H
+#define CLIENT_H
+
 #include <string>
 
 #include "yaml-cpp/yaml.h"
 
 #include "car.h"
-
-#pragma once
 
 using std::string;
 
@@ -52,3 +53,5 @@ public:
     Client(const string login);
     void updateFile();
 };
+
+#endif // CLIENT_H

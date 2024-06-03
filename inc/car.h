@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CAR_H
+#define CAR_H
 
 #include <vector>
 #include <map>
@@ -44,3 +45,5 @@ public:
     void rent();
     void unrent();
 };
+
+#endif // CAR_H

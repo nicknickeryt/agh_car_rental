@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MESSAGES_H
+#define MESSAGES_H
 
 #include <string>
 #include <map>
@@ -276,3 +277,5 @@ public:
   static string getMessage(const Message message);
   static void sendMessage(const Message message);
 };
+
+#endif // MESSAGES_H

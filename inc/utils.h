@@ -1,3 +1,6 @@
+#ifndef UTILS_H
+#define UTILS_H
+
 #include <string>
 #include <map>
 
@@ -50,3 +53,5 @@ public:
 
     static bool validateInt(const string &input);
 };
+
+#endif // UTILS_H
