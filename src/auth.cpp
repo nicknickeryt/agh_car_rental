@@ -21,7 +21,7 @@ int Auth::showLogin(Client &client) {
         try {
             retClient = Client(login);
         }
-        catch (exception e) {
+        catch (exception const&) {
             Utils::processException(CLIENT_PARSE);
         }
 

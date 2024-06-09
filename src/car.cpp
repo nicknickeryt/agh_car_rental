@@ -76,7 +76,7 @@ bool Car::getAllCars(vector<Car> &carsV) {
         carsV = ret;
         return 0;
     }
-    catch (exception e) {
+    catch (exception const&) {
         Utils::processException(CARS_PARSE);
     }
     return 1;
