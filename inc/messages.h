@@ -272,9 +272,14 @@ cars:
       doors: 5
 )";
 
+
+// This class manages the program messages
 class Messages {
 public:
+  // Gets the program message as given by the Message enum
   static string getMessage(const Message message);
+
+  // Send the message using the Message enum
   static void sendMessage(const Message message);
 };
 
